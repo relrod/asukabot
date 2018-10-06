@@ -1,4 +1,9 @@
 import discord
+import configparser
+
+config = configparser.ConfigParser()
+config.read('bot.ini')
+token = config['Discord']['Token']
 
 class Bot:
     command_table = {}
@@ -7,8 +12,10 @@ class Bot:
         self.client = discord.Client()
         self.token = token
 
+
 def command(coroutine):
     Bot.command_table[coroutine.__name__.strip(' ')] = coroutine
+
 
 class Asuka(Bot):
     def __init__(self, token):
@@ -16,11 +23,13 @@ class Asuka(Bot):
 
     @command
     async def quit(self, message, args):
-        await self.client.send_message(discord.Object('496185128171864065'), 'I am needed elsewhere! Farewell!'.format(message))
+        await self.client.send_message(discord.Object('496185128171864065'),
+                                       'I am needed elsewhere! Farewell!'.format(message))
         await self.client.close()
 
 
 asuka = Asuka(token)
+
 
 @asuka.client.event
 async def on_message(message):
@@ -32,12 +41,16 @@ async def on_message(message):
 
             await Bot.command_table[command](asuka, message, args)
         except (ValueError, KeyError):
-            await asuka.client.send_message(discord.Object('496185128171864065'), 'Unknown command!')
+            await asuka.client.send_message(message.channel, 'Unknown command!')
+
 
 @asuka.client.event
 async def on_member_join(member):
-    await asuka.client.send_message(discord.Object('375064753208426499'), 'Welcome, <@' + member.id + '>! I have sent you instructions on how to verify your account!')
-    await asuka.client.send_message(discord.Object('375064753208426499'), 'You will be unable to speak until your account is verified. Accounts not verified within 30 minutes are automatically removed from the server.')
+    await asuka.client.send_message(discord.Object('375064753208426499'),
+                                    'Welcome, <@' + member.id + '>! I have sent you instructions on how to verify your account!')
+    await asuka.client.send_message(discord.Object('375064753208426499'),
+                                    'You will be unable to speak until your account is verified. Accounts not verified within 30 minutes are automatically removed from the server.')
+
 
 @asuka.client.event
 async def on_ready():
@@ -46,5 +59,6 @@ async def on_ready():
     print(asuka.client.user.id)
     print('------')
     await asuka.client.send_message(discord.Object('496185128171864065'), 'I have returned!')
+
 
 asuka.client.run(asuka.token)
