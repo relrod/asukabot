@@ -20,7 +20,7 @@ class Asuka(Bot):
         await self.client.close()
 
 
-asuka = Asuka('NDk2MTg2MTgxNDk5NzQ4MzU0.DpM_oA.jGbBvZkSa_NW3pfBAm5Yb0_Ctzs')
+asuka = Asuka(token)
 
 @asuka.client.event
 async def on_message(message):
