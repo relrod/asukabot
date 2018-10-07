@@ -1,9 +1,18 @@
 import discord
 import configparser
+import redis
 
 config = configparser.ConfigParser()
 config.read('bot.ini')
 token = config['Discord']['Token']
+redishost = config['DEFAULT']['RedisHost']
+redisport = config['DEFAULT']['RedisPort']
+redispassword = config['DEFAULT']['RedisPassword']
+
+redisconn = redis.Redis(
+    host=redishost,
+    port=redisport,
+    password=redispassword)
 
 class Bot:
     command_table = {}
@@ -27,6 +36,9 @@ class Asuka(Bot):
                                        'I am needed elsewhere! Farewell!'.format(message))
         await self.client.close()
 
+    @command
+    async def verify(self, message, args):
+        redisconn.hmset(message.channel)
 
 asuka = Asuka(token)
 
@@ -46,10 +58,17 @@ async def on_message(message):
 
 @asuka.client.event
 async def on_member_join(member):
-    await asuka.client.send_message(discord.Object('375064753208426499'),
-                                    'Welcome, <@' + member.id + '>! I have sent you instructions on how to verify your account!')
-    await asuka.client.send_message(discord.Object('375064753208426499'),
-                                    'You will be unable to speak until your account is verified. Accounts not verified within 30 minutes are automatically removed from the server.')
+    default_channel = config['YPH']['verify_chan']
+    await asuka.client.send_message(discord.Object(default_channel),
+                                    'Welcome, <@' + member.id + '>!')
+    await asuka.client.send_message(discord.Object(default_channel),
+                                    'Please run `.verify <STUDENT EMAIL>` to verify your account.')
+    await asuka.client.send_message(discord.Object(default_channel),
+                                    'You will receive an email with further instructions!')
+    await asuka.client.send_message(discord.Object(default_channel),
+                                    'You will be unable to speak until your account is verified.')
+    await asuka.client.send_message(discord.Object(default_channel),
+                                    'Accounts not verified within 30 minutes are automatically removed from the server.')
 
 
 @asuka.client.event
