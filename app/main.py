@@ -1,6 +1,8 @@
 import discord
 import configparser
 import redis
+import requests
+
 
 config = configparser.ConfigParser()
 config.read('bot.ini')
@@ -13,6 +15,7 @@ redisconn = redis.Redis(
     host=redishost,
     port=redisport,
     password=redispassword)
+
 
 class Bot:
     command_table = {}
@@ -39,6 +42,20 @@ class Asuka(Bot):
     @command
     async def verify(self, message, args):
         redisconn.hmset(message.channel)
+    async def test(self, message, args):
+        fromEmail = config['Mailgun']['from']
+        subjectEmail = config['Mailgun']['subject']
+        apiEmail = config['Mailgun']['API']
+        urlEmail = config['Mailgun']['url']
+        try:
+            payload = {'from': fromEmail, 'to': args, 'subject': subjectEmail, 'text': 'This is a sample message'}
+            header = {'api': apiEmail}
+            send = requests.post(urlEmail, payload, headers=header)
+            print(send.status_code)
+            print(args)
+        except:
+            await self.client.send_message(message.channel, 'Message send Fail.')
+
 
 asuka = Asuka(token)
 
