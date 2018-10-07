@@ -70,7 +70,7 @@ async def on_message(message):
 
             await Bot.command_table[command](asuka, message, args)
         except (ValueError, KeyError):
-            await asuka.client.send_message(message.channel, 'Unknown command!')
+            pass
 
 
 @asuka.client.event
