@@ -1,9 +1,11 @@
 import discord
 import configparser
+import requests
 
 config = configparser.ConfigParser()
 config.read('bot.ini')
 token = config['Discord']['Token']
+
 
 class Bot:
     command_table = {}
@@ -26,6 +28,21 @@ class Asuka(Bot):
         await self.client.send_message(discord.Object('496185128171864065'),
                                        'I am needed elsewhere! Farewell!'.format(message))
         await self.client.close()
+
+    @command
+    async def test(self, message, args):
+        fromEmail = config['Mailgun']['from']
+        subjectEmail = config['Mailgun']['subject']
+        apiEmail = config['Mailgun']['API']
+        urlEmail = config['Mailgun']['url']
+        try:
+            payload = {'from': fromEmail, 'to': args, 'subject': subjectEmail, 'text': 'This is a sample message'}
+            header = {'api': apiEmail}
+            send = requests.post(urlEmail, payload, headers=header)
+            print(send.status_code)
+            print(args)
+        except:
+            await self.client.send_message(message.channel, 'Message send Fail.')
 
 
 asuka = Asuka(token)

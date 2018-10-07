@@ -1,5 +1,17 @@
 [DEFAULT]
 Debug = True
+RedisHost = REDIS HOST/IP
+RedisPort = REDIS PORT
+RedisPassword = REDISPASSWORD
 
 [Discord]
 Token = TOKEN HERE
+
+[Mailgun]
+API = API KEY HERE
+url = API URL HERE
+from = FROM EMAIL HERE
+subject = SUBJECT LINE HERE
+
+[YPH]
+verify_chan = YPH Discord Verification Channel ID
